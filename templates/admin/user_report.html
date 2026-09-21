@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>User Report</h2>
+
+    <form method="POST" action="{{ url_for('admin.user_report') }}" class="report-form">
+        <div class="form-group form-inline">
+            <label for="user_id">Select User:</label>
+            <select id="user_id" name="user_id" required>
+                <option value="">-- Choose a user --</option>
+                {% for user in users %}
+                    <option value="{{ user.id }}"
+                        {% if selected_user_id == user.id %}selected{% endif %}>
+                        {{ user.username }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Generate Report</button>
+        </div>
+    </form>
+
+    {% if report_data %}
+        <div class="report-card">
+            <h3>Report for {{ report_data.username }}</h3>
+            {% if report_data.entries %}
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Words Tried</th>
+                            <th>Correct Guesses</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in report_data.entries %}
+                            <tr>
+                                <td>{{ entry.date }}</td>
+                                <td>{{ entry.words_tried }}</td>
+                                <td>{{ entry.correct_guesses }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No game data found for this user.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

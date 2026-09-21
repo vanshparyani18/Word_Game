@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="game-container">
+    <h2>Guess the Word</h2>
+
+    {% if not active_game %}
+        {# Dashboard: no active game #}
+        <div class="game-info">
+            <p>Guess a 5-letter word in 5 tries or less!</p>
+            <p>Games played today: <strong>{{ games_today }}</strong> / 3</p>
+        </div>
+
+        {% if can_play %}
+            <form method="POST" action="{{ url_for('game.start_game') }}">
+                <button type="submit" class="btn btn-primary btn-large">Start New Game</button>
+            </form>
+        {% else %}
+            <div class="game-limit-message">
+                <p>You have reached the maximum of <strong>3 words per day</strong>.</p>
+                <p>Come back tomorrow for more!</p>
+            </div>
+        {% endif %}
+
+    {% else %}
+        {# Active game: show grid and input #}
+        <div class="wordle-grid">
+            {% for guess in guesses %}
+                <div class="guess-row">
+                    {% for cell in guess.result %}
+                        <div class="cell cell-{{ cell.status }}">
+                            {{ cell.letter }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            {# Empty rows for remaining guesses #}
+            {% set remaining = 5 - guesses|length %}
+            {% for i in range(remaining) %}
+                <div class="guess-row">
+                    {% for j in range(5) %}
+                        <div class="cell cell-empty"></div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="color-legend">
+            <span class="legend-item"><span class="legend-box legend-green"></span> Correct position</span>
+            <span class="legend-item"><span class="legend-box legend-orange"></span> Wrong position</span>
+            <span class="legend-item"><span class="legend-box legend-grey"></span> Not in word</span>
+        </div>
+
+        {% if game_over %}
+            {# Game over modal #}
+            <div class="modal-overlay" id="gameOverModal">
+                <div class="modal-content">
+                    {% if won %}
+                        <h3>🎉 Congratulations!</h3>
+                        <p>You guessed the word correctly!</p>
+                    {% else %}
+                        <h3>Better Luck Next Time!</h3>
+                        <p>{{ message }}</p>
+                    {% endif %}
+                    <a href="{{ url_for('game.dashboard') }}" class="btn btn-primary">OK</a>
+                </div>
+            </div>
+        {% else %}
+            {# Guess input form #}
+            <form method="POST" action="{{ url_for('game.submit_guess', session_id=session_id) }}" class="guess-form">
+                <div class="input-group">
+                    <input type="text" name="guess" maxlength="5" minlength="5"
+                           pattern="[A-Za-z]{5}" required
+                           placeholder="Enter 5-letter word"
+                           class="guess-input"
+                           style="text-transform: uppercase;"
+                           autofocus>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+                <p class="guess-counter">Guess {{ guesses|length + 1 }} of 5</p>
+            </form>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

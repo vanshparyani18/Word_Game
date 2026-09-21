@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-container">
+    <h2>Daily Report</h2>
+
+    <form method="POST" action="{{ url_for('admin.daily_report') }}" class="report-form">
+        <div class="form-group form-inline">
+            <label for="report_date">Select Date:</label>
+            <input type="date" id="report_date" name="report_date"
+                   value="{{ selected_date }}" required>
+            <button type="submit" class="btn btn-primary">Generate Report</button>
+        </div>
+    </form>
+
+    {% if report_data %}
+        <div class="report-card">
+            <h3>Report for {{ report_data.date }}</h3>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Number of Users</td>
+                        <td>{{ report_data.num_users }}</td>
+                    </tr>
+                    <tr>
+                        <td>Number of Correct Guesses</td>
+                        <td>{{ report_data.correct_guesses }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
